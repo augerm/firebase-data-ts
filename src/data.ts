@@ -1,4 +1,5 @@
 import * as admin from 'firebase-admin';
+import * as FirebaseFirestore from '@google-cloud/firestore';
 
 let dataServiceImpl: DataService;
 
