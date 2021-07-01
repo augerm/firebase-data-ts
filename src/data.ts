@@ -57,8 +57,8 @@ export class DataService {
 
     async getCollection<T>(documentQuery: string, query?: any, options: QueryOptions = {}) {
         const firestoreCollection = this.firestore.collection(documentQuery);
-        // Get default query
-        let firebaseQuery = firestoreCollection.select();
+        // Base query
+        let firebaseQuery = firestoreCollection as FirebaseFirestore.Query;
 
         if(query) {
             firebaseQuery = firebaseQuery.where(query.documentVal, '==', query.actualVal);
