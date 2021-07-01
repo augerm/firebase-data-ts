@@ -55,7 +55,7 @@ export class DataService {
         this.firestore = admin.firestore();
     }
 
-    async getCollection<T extends AbstractData>(documentQuery: string, query?: any, options: QueryOptions = {}) {
+    async getCollection<T>(documentQuery: string, query?: any, options: QueryOptions = {}) {
         const firestoreCollection = this.firestore.collection(documentQuery);
         // Base query
         let firebaseQuery = firestoreCollection as FirebaseFirestore.Query;
@@ -69,23 +69,22 @@ export class DataService {
         const querySnapshot = await firebaseQuery.get();
         const values = querySnapshot.docs.map((queryDocumentSnapshot) => {
             return {
-                ...queryDocumentSnapshot.data(),
+                ...(queryDocumentSnapshot.data() as T),
                 ref: queryDocumentSnapshot.ref,
                 id: queryDocumentSnapshot.id,
-                rawData: queryDocumentSnapshot.data(),
+                rawData: (queryDocumentSnapshot.data() as T),
             };
         });
-        // Typescript doesn't understand the Object extension with ...
-        return values as unknown as T[];
+        return values;
     }
 
-    async getCollectionAsMap<T extends AbstractData>(documentQuery: string, query?: any, options?: QueryOptions) {
+    async getCollectionAsMap<T>(documentQuery: string, query?: any, options?: QueryOptions) {
         const collection = await this.getCollection<T>(documentQuery, query, options);
         const collectionMap = new Map();
         for (const item of collection) {
             collectionMap.set(item.id, item);
         }
-        return collectionMap as Map<string, T>;
+        return collectionMap;
     }
 
     async getDocument<T>(documentQuery: string): Promise<T> {
