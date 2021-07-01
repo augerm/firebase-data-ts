@@ -1,6 +1,6 @@
 {
   "name": "firebase-data-ts",
-  "version": "2.0.8",
+  "version": "2.0.9",
   "main": "lib/data.js",
   "typings": "lib/data.d.ts",
   "files": [
