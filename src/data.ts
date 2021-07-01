@@ -15,6 +15,10 @@ export interface AbstractData {
     ref: FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>;
 }
 
+export interface QueryOptions {
+    limit?: number;
+}
+
 export class Update {
     public documentQuery: string;
     public type: UpdateType;
@@ -51,15 +55,18 @@ export class DataService {
         this.firestore = admin.firestore();
     }
 
-    async getCollection<T>(documentQuery: string, query?: any) {
-        let querySnapshot;
-        if (query) {
-            querySnapshot = await this.firestore.collection(documentQuery)
-                .where(query.documentVal, '==', query.actualVal)
-                .get();
-        } else {
-            querySnapshot = await this.firestore.collection(documentQuery).get();
+    async getCollection<T>(documentQuery: string, query?: any, options?: QueryOptions = {}) {
+        const firestoreCollection = this.firestore.collection(documentQuery);
+        // Get default query
+        let firebaseQuery = firestoreCollection.startAt(0);
+
+        if(query) {
+            firebaseQuery = firebaseQuery.where(query.documentVal, '==', query.actualVal);
         }
+        if(options.limit) {
+            firebaseQuery = firebaseQuery.limit(options.limit);
+        }
+        const querySnapshot = await firebaseQuery.get();
         const values = querySnapshot.docs.map((queryDocumentSnapshot) => {
             return {
                 ...queryDocumentSnapshot.data(),
@@ -72,8 +79,8 @@ export class DataService {
         return values as unknown as T[];
     }
 
-    async getCollectionAsMap<T extends AbstractData>(documentQuery: string, query?: any) {
-        const collection = await this.getCollection<T>(documentQuery, query);
+    async getCollectionAsMap<T extends AbstractData>(documentQuery: string, query?: any, options?: QueryOptions) {
+        const collection = await this.getCollection<T>(documentQuery, query, options);
         const collectionMap = new Map();
         for (const item of collection) {
             collectionMap.set(item.id, item);
