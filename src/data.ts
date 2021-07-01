@@ -55,7 +55,7 @@ export class DataService {
         this.firestore = admin.firestore();
     }
 
-    async getCollection<T>(documentQuery: string, query?: any, options?: QueryOptions = {}) {
+    async getCollection<T>(documentQuery: string, query?: any, options: QueryOptions = {}) {
         const firestoreCollection = this.firestore.collection(documentQuery);
         // Get default query
         let firebaseQuery = firestoreCollection.startAt(0);
